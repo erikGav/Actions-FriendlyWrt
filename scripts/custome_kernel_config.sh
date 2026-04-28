@@ -19,16 +19,14 @@ done
 
 # Patch mac80211: remove AP power constraint enforcement entirely.
 # bss_conf.txpower_type is never NL80211_TX_POWER_FIXED in OpenWrt (PHY-level
-# txpower is used), so the RFC condition-based approach doesn't work.
+# txpower is used), so the RFC condition-based approach does not work.
 # Regulatory channel max still applies; only the AP-advertised constraint is skipped.
 python3 - <<'PYEOF'
 import sys
 filename = 'kernel/net/mac80211/iface.c'
 with open(filename, 'r') as f:
     content = f.read()
-OLD = '	if (sdata->deflink.ap_power_level != IEEE80211_UNSET_POWER_LEVEL)
-		power = min(power, sdata->deflink.ap_power_level);
-'
+OLD = '\tif (sdata->deflink.ap_power_level != IEEE80211_UNSET_POWER_LEVEL)\n\t\tpower = min(power, sdata->deflink.ap_power_level);\n'
 if OLD not in content:
     print('ERROR: mac80211 patch target not found in ' + filename, file=sys.stderr)
     sys.exit(1)
